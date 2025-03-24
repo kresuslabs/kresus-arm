@@ -1,30 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Address } from "viem";
 import { useAccount } from "wagmi";
 import { useContractWallet } from "../hooks/useContractWallet";
+import { usePortfolio } from "../hooks/usePortfolio";
 
 export function AssetsSection() {
   const { address } = useAccount();
   const { contractWalletAddress } = useContractWallet(address as Address);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Don't render anything until mounted to prevent hydration mismatch
-  if (!mounted) {
-    return null;
-  }
+  const { data: portfolio } = usePortfolio(contractWalletAddress ?? undefined);
 
   return (
     <div className="p-4">
-      <h2 className="text-xl mb-4">Wallet Info</h2>
       {contractWalletAddress && (
         <div>
           <p>Address: {contractWalletAddress}</p>
+        </div>
+      )}
+      {portfolio && (
+        <div>
+          <p>Portfolio: {portfolio.length}</p>
         </div>
       )}
     </div>

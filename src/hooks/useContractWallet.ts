@@ -1,45 +1,42 @@
 "use client";
 
-import { erc4337Abi } from "@/abi/erc4337";
-import { ENTRYPOINT_ADDRESS } from "@/config";
 import { useEffect, useState } from "react";
-import { encodeFunctionData, type Address } from "viem";
-import { usePublicClient } from "wagmi";
+import { V06 } from "userop";
+import { type Address } from "viem";
+import { usePublicClient, useWalletClient } from "wagmi";
 
-function makeInitCode(walletAddress: Address) {
-  return encodeFunctionData({
-    abi: erc4337Abi,
-    functionName: "getSenderAddress",
-    args: [walletAddress],
-  });
-}
+import type {
+  Account,
+  Chain,
+  PublicClient,
+  Transport,
+  WalletClient,
+} from "viem";
 
 export function useContractWallet(walletAddress: Address) {
-  const [contractAddress, setContractAddress] = useState<Address | null>(null);
+  const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
+  const [contractAddress, setContractAddress] = useState<Address | null>(null);
 
   useEffect(() => {
     async function getWalletAddress() {
-      if (!publicClient || !ENTRYPOINT_ADDRESS) return;
-
-      try {
-        await publicClient.simulateContract({
-          address: ENTRYPOINT_ADDRESS,
-          abi: erc4337Abi,
-          functionName: "getSenderAddress",
-          args: [makeInitCode(walletAddress)],
-        });
-      } catch (error: any) {
-        // The call is expected to revert with SenderAddressResult
-        if (error.cause?.data?.errorName === "SenderAddressResult") {
-          // The wallet address is in the first argument of the error
-          const address = error.cause.data.args[0] as Address;
-          setContractAddress(address);
-        } else {
-          console.error("Error getting wallet address:", error);
-          setContractAddress(null);
-        }
+      if (!publicClient || !walletClient) {
+        console.log("No public or wallet client");
+        return;
       }
+
+      const account = new V06.Account.Instance({
+        ...V06.Account.Common.SimpleAccount.base(
+          publicClient as PublicClient,
+          walletClient as WalletClient<Transport, Chain | undefined, Account>
+        ),
+      });
+
+      console.log("account", account);
+
+      const senderAddress = await account.getSender();
+      console.log("senderAddress", senderAddress);
+      setContractAddress(senderAddress);
     }
 
     getWalletAddress();
