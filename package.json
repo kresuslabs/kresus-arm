@@ -16,10 +16,10 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
-    "userop": "^0.4.0-beta.5",
     "viem": "2.x",
     "wagmi": "^2.14.15",
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "ethers": "5.6.9"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

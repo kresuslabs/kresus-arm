@@ -1,11 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { V06 } from "userop";
 import { getAddress, type Address } from "viem";
 import { usePublicClient, useWalletClient } from "wagmi";
 
-import { ENTRYPOINT_ADDRESS, FACTORY_ADDRESS } from "@/config";
+import { FACTORY_ADDRESS } from "@/config";
 import type {
   Account,
   Chain,
@@ -18,14 +17,25 @@ async function getContractWalletAddress(
   publicClient: PublicClient,
   walletClient: WalletClient<Transport, Chain | undefined, Account>
 ) {
-  const account = new V06.Account.Instance({
-    ...V06.Account.Common.SimpleAccount.base(publicClient, walletClient),
-    entryPointAddress: ENTRYPOINT_ADDRESS,
-    factoryAddress: FACTORY_ADDRESS,
-    salt: BigInt(getAddress(walletClient.account.address)),
-  });
-
-  return account.getSender();
+  const salt = BigInt(getAddress(walletClient.account.address).toLowerCase());
+  const cowAddress = (await publicClient.readContract({
+    address: FACTORY_ADDRESS,
+    abi: [
+      {
+        inputs: [
+          { internalType: "address", name: "owner", type: "address" },
+          { internalType: "uint256", name: "salt", type: "uint256" },
+        ],
+        name: "getAddress",
+        outputs: [{ internalType: "address", name: "", type: "address" }],
+        stateMutability: "view",
+        type: "function",
+      },
+    ],
+    functionName: "getAddress",
+    args: [walletClient.account.address, salt],
+  })) as `0x${string}`;
+  return cowAddress;
 }
 
 export function useContractWallet(walletAddress: Address) {
