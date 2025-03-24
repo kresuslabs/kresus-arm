@@ -16,7 +16,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased min-h-screen bg-[#02031E]`}>
+      <head>
+        <link rel="icon" href="/kresus.svg" />
+      </head>
+      <body className={`antialiased min-h-screen bg-[#02031E] text-white`}>
         <Providers>
           <Header />
           <main className="max-w-7xl mx-auto px-6">{children}</main>
