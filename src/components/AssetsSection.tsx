@@ -41,7 +41,7 @@ export function AssetsSection() {
   }: {
     title: string;
     portfolio: PortfolioItem[];
-    isCow?: boolean;
+    isCow: boolean;
   }) => (
     <div className="mt-6">
       <div className="flex items-center justify-between px-4 mb-4">
@@ -68,7 +68,11 @@ export function AssetsSection() {
         <TableHeader />
         <div>
           {portfolio?.map((item) => (
-            <Asset key={item.token.address} portfolioItem={item} />
+            <Asset
+              key={item.token.address}
+              portfolioItem={item}
+              isCow={isCow}
+            />
           ))}
         </div>
       </div>
@@ -86,7 +90,11 @@ export function AssetsSection() {
       )}
 
       {eowPortfolio && eowPortfolio.length > 0 && (
-        <PortfolioSection title="EOA Wallet Assets" portfolio={eowPortfolio} />
+        <PortfolioSection
+          title="EOA Wallet Assets"
+          portfolio={eowPortfolio}
+          isCow={false}
+        />
       )}
     </div>
   );

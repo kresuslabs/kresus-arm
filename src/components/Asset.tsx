@@ -8,7 +8,13 @@ function chainIdToChain(chainId: number): string {
   );
 }
 
-export function Asset({ portfolioItem }: { portfolioItem: PortfolioItem }) {
+export function Asset({
+  portfolioItem,
+  isCow,
+}: {
+  portfolioItem: PortfolioItem;
+  isCow: boolean;
+}) {
   // Helper function to format amounts
   const formatAmount = (amount: string): string => {
     const numAmount = parseFloat(amount);
@@ -52,6 +58,14 @@ export function Asset({ portfolioItem }: { portfolioItem: PortfolioItem }) {
       <div className="flex-1 ml-3">
         <div className="flex items-center gap-2">
           <span className="font-medium">{portfolioItem.token.name}</span>
+          {isCow && (
+            <button
+              className="p-1 text-xs bg-gray-700 hover:bg-gray-600 rounded-md transition-colors"
+              title="COW wallet action"
+            >
+              Action
+            </button>
+          )}
           <img
             src={`https://dd.dexscreener.com/ds-data/chains/${chainIdToChain(
               portfolioItem.token.chainId
