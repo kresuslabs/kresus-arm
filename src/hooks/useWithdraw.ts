@@ -3,18 +3,70 @@ import { PortfolioItem } from "@/types/portfolio";
 import { useMutation } from "@tanstack/react-query";
 import { hexlify } from "ethers/lib/utils";
 import {
-  encodeFunctionData,
-  erc20Abi,
-  http,
-  WalletClient,
-  type Address,
-  type PublicClient,
+	encodeFunctionData,
+	erc20Abi,
+	http,
+	WalletClient,
+	type Address,
+	type PublicClient,
 } from "viem";
 import { createBundlerClient } from "viem/account-abstraction";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { estimateUserOpGas } from "./gas";
 import { getUserOpHash, UserOperationV0_7 } from "./op";
 import { useContractWallet } from "./useContractWallet";
+
+const makeErc20TransferCallData = (
+  eowAddress: Address,
+  asset: PortfolioItem
+) => {
+  const txCallData = encodeFunctionData({
+    abi: erc20Abi,
+    functionName: "transfer",
+    args: [eowAddress, BigInt(asset.balance)],
+  });
+
+  return encodeFunctionData({
+    abi: [
+      {
+        name: "execute",
+        type: "function",
+        inputs: [
+          { name: "to", type: "address" },
+          { name: "value", type: "uint256" },
+          { name: "data", type: "bytes" },
+        ],
+        outputs: [],
+        stateMutability: "nonpayable",
+      },
+    ],
+    functionName: "execute",
+    args: [asset.token.address as Address, BigInt(0), txCallData],
+  });
+};
+
+const makeNativeTransferCallData = (
+  eowAddress: Address,
+  asset: PortfolioItem
+) => {
+  return encodeFunctionData({
+    abi: [
+      {
+        name: "execute",
+        type: "function",
+        inputs: [
+          { name: "to", type: "address" },
+          { name: "value", type: "uint256" },
+          { name: "data", type: "bytes" },
+        ],
+        outputs: [],
+        stateMutability: "nonpayable",
+      },
+    ],
+    functionName: "execute",
+    args: [eowAddress, BigInt(asset.balance), "0x"],
+  });
+};
 
 const withdraw = async (
   cowAddress: Address,
@@ -40,34 +92,13 @@ const withdraw = async (
   })) as bigint;
 
   console.log("assetBalance", asset.balance);
-
-  const txCallData = encodeFunctionData({
-    abi: erc20Abi,
-    functionName: "transfer",
-    args: [eowAddress, BigInt(asset.balance)],
-  });
-
-  const callData = encodeFunctionData({
-    abi: [
-      {
-        name: "execute",
-        type: "function",
-        inputs: [
-          { name: "to", type: "address" },
-          { name: "value", type: "uint256" },
-          { name: "data", type: "bytes" },
-        ],
-        outputs: [],
-        stateMutability: "nonpayable",
-      },
-    ],
-    functionName: "execute",
-    args: [asset.token.address as Address, BigInt(0), txCallData],
-  });
+  console.log("isNative", isNative);
 
   let userOp: Partial<UserOperationV0_7> = {
     sender: cowAddress,
-    callData,
+    callData: isNative
+      ? makeNativeTransferCallData(eowAddress, asset)
+      : makeErc20TransferCallData(eowAddress, asset),
     nonce: hexlify(nonce),
   };
 
@@ -140,7 +171,7 @@ export const useWithdraw = function (asset: PortfolioItem) {
         publicClient,
         walletClient,
         asset,
-        false // isNative
+        asset.token.address === "0x0000000000000000000000000000000000000000"
       ),
   });
 };
