@@ -26,6 +26,7 @@ export function Asset({ portfolioItem }: { portfolioItem: PortfolioItem }) {
   const price = portfolioItem.token.priceUSD
     ? parseFloat(portfolioItem.token.priceUSD)
     : 0;
+  console.log(portfolioItem.token.name, portfolioItem.balance);
   const uiAmount =
     parseFloat(portfolioItem.balance) / 10 ** portfolioItem.token.decimals;
   const totalValue = price * uiAmount;

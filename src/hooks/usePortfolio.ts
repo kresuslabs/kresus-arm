@@ -32,6 +32,10 @@ export async function getAnyToken(
   }
 }
 
+export function parseBalance(balance: string): bigint {
+  return BigInt(balance);
+}
+
 export async function getTokensMetadata(
   addresses: string[],
   chainId: string
@@ -90,9 +94,14 @@ export async function getPortfolio(address: string): Promise<PortfolioItem[]> {
 
         // Filter non-zero token balances
         const nonZeroBalances = tokenBalances.filter((token) => {
-          const balance = BigInt(token.tokenBalance || "0");
-          return balance > BigInt(0);
+          if (token.tokenBalance) {
+            const balance = parseBalance(token.tokenBalance);
+            return balance > BigInt(0);
+          }
+          return false;
         });
+
+        console.log("nonZeroBalances", nonZeroBalances);
 
         // Add native token if balance > 0
         if (nativeBalance.toBigInt() > BigInt(0)) {
@@ -104,7 +113,6 @@ export async function getPortfolio(address: string): Promise<PortfolioItem[]> {
         }
 
         nonZeroBalances.forEach((token) => {
-          console.log("token", token);
           tokenBalancesMap.set(token.contractAddress, token.tokenBalance!);
         });
 
@@ -125,7 +133,7 @@ export async function getPortfolio(address: string): Promise<PortfolioItem[]> {
           const metadata = metadataMap.get(metadataKey);
           if (metadata) {
             allTokens.push({
-              balance: tokenBalancesMap.get(address)!,
+              balance: BigInt(tokenBalancesMap.get(address)!).toString(),
               token: metadata,
             });
           }
