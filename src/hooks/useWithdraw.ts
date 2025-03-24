@@ -3,12 +3,12 @@ import { PortfolioItem } from "@/types/portfolio";
 import { useMutation } from "@tanstack/react-query";
 import { hexlify } from "ethers/lib/utils";
 import {
-	encodeFunctionData,
-	erc20Abi,
-	http,
-	WalletClient,
-	type Address,
-	type PublicClient,
+  encodeFunctionData,
+  erc20Abi,
+  http,
+  WalletClient,
+  type Address,
+  type PublicClient,
 } from "viem";
 import { createBundlerClient } from "viem/account-abstraction";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
@@ -69,13 +69,16 @@ const makeNativeTransferCallData = (
 };
 
 const withdraw = async (
-  cowAddress: Address,
-  eowAddress: Address,
-  publicClient: PublicClient,
-  walletClient: WalletClient,
   asset: PortfolioItem,
-  isNative: boolean // FIXME: support native!
+  isNative: boolean,
+  cowAddress?: Address,
+  eowAddress?: Address,
+  publicClient?: PublicClient,
+  walletClient?: WalletClient
 ) => {
+  if (!cowAddress || !walletClient || !publicClient || !eowAddress) {
+    throw new Error("No wallet client or public client");
+  }
   // Get the current nonce
   const nonce = (await publicClient.readContract({
     address: cowAddress,
@@ -158,20 +161,16 @@ export const useWithdraw = function (asset: PortfolioItem) {
   const { address: eowAddress } = useAccount();
   const { data: cowAddress } = useContractWallet(eowAddress as Address);
 
-  if (!cowAddress || !walletClient || !publicClient || !eowAddress) {
-    throw new Error("No wallet client or public client");
-  }
-
   return useMutation({
     mutationKey: ["withdraw", asset.token.address],
     mutationFn: () =>
       withdraw(
+        asset,
+        asset.token.address === "0x0000000000000000000000000000000000000000",
         cowAddress,
         eowAddress,
         publicClient,
-        walletClient,
-        asset,
-        asset.token.address === "0x0000000000000000000000000000000000000000"
+        walletClient
       ),
   });
 };
