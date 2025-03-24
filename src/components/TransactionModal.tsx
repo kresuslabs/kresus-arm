@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { http, PublicClient } from "viem";
 import { createBundlerClient } from "viem/account-abstraction";
@@ -15,6 +16,7 @@ export function TransactionModal({
   txHash,
   publicClient,
 }: TransactionModalProps) {
+  const queryClient = useQueryClient();
   const [status, setStatus] = useState<"pending" | "confirmed" | "failed">(
     "pending"
   );
@@ -48,6 +50,10 @@ export function TransactionModal({
         if (status !== "pending") {
           setStatus("failed");
         }
+      } finally {
+        queryClient.resetQueries({
+          queryKey: ["portfolio"],
+        });
       }
     };
 
@@ -77,7 +83,7 @@ export function TransactionModal({
 
           {receipt && (
             <a
-              href={`https://blockscan.com/tx/${receipt.userOpHash}`}
+              href={`https://blockscan.com/tx/${receipt.receipt.transactionHash}`}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-4 text-light-blue-500 hover:underline"

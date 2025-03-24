@@ -96,7 +96,7 @@ export function Asset({
           {/* Action Button */}
           {isCow && (
             <button
-              className="opacity-0 group-hover:opacity-100 ml-4 p-1.5 text-xs bg-light-blue-900 hover:bg-light-blue-900/80 rounded-md transition-all flex items-center gap-1"
+              className="opacity-0 group-hover:opacity-100 ml-4 p-1.5 text-xs bg-light-blue-900 hover:bg-light-blue-900/80 rounded-md transition-all flex items-center gap-1 cursor-pointer"
               title="COW wallet action"
               onClick={handleWithdraw}
             >

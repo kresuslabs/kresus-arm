@@ -5,6 +5,7 @@ import { hexlify } from "ethers/lib/utils";
 import {
   encodeFunctionData,
   erc20Abi,
+  parseEther,
   WalletClient,
   type Address,
   type PublicClient,
@@ -77,7 +78,7 @@ const withdraw = async (
   if (!cowAddress || !walletClient || !publicClient || !eowAddress) {
     throw new Error("No wallet client or public client");
   }
-  // Get the current nonce
+
   const nonce = (await publicClient.readContract({
     address: cowAddress,
     abi: [
@@ -92,9 +93,7 @@ const withdraw = async (
     functionName: "getNonce",
   })) as bigint;
 
-  console.log("assetBalance", asset.balance);
-  console.log("isNative", isNative);
-
+  // For native tokens, first estimate gas with full amount
   let userOp: Partial<UserOperationV0_7> = {
     sender: cowAddress,
     callData: isNative
@@ -104,6 +103,17 @@ const withdraw = async (
   };
 
   const gasData = await estimateUserOpGas(userOp, publicClient);
+
+  if (isNative) {
+    // Adjust transfer amount to leave gas costs
+    const adjustedAsset = {
+      ...asset,
+      balance: (BigInt(asset.balance) - parseEther("0.0005")).toString(), // leave some gas
+    };
+
+    // Recreate userOp with adjusted amount
+    userOp.callData = makeNativeTransferCallData(eowAddress, adjustedAsset);
+  }
 
   // @ts-ignore: gasData loose type, use zod
   userOp = {
