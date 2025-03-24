@@ -1,12 +1,11 @@
 import { ENTRYPOINT_ADDRESS } from "@/config";
 import { PortfolioItem } from "@/types/portfolio";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { hexlify } from "ethers/lib/utils";
 import {
   encodeFunctionData,
   erc20Abi,
   http,
-  parseUnits,
   WalletClient,
   type Address,
   type PublicClient,
@@ -42,11 +41,10 @@ const withdraw = async (
 
   console.log("assetBalance", asset.balance);
 
-  const transferAmount = parseUnits(asset.balance, asset.token.decimals);
   const txCallData = encodeFunctionData({
     abi: erc20Abi,
     functionName: "transfer",
-    args: [eowAddress, transferAmount],
+    args: [eowAddress, BigInt(asset.balance)],
   });
 
   const callData = encodeFunctionData({
@@ -133,9 +131,9 @@ export const useWithdraw = function (asset: PortfolioItem) {
     throw new Error("No wallet client or public client");
   }
 
-  return useQuery({
-    queryKey: ["withdraw"],
-    queryFn: () =>
+  return useMutation({
+    mutationKey: ["withdraw", asset.token.address],
+    mutationFn: () =>
       withdraw(
         cowAddress,
         eowAddress,
@@ -144,6 +142,5 @@ export const useWithdraw = function (asset: PortfolioItem) {
         asset,
         false // isNative
       ),
-    enabled: !!cowAddress && !!walletClient && !!publicClient && !!eowAddress,
   });
 };

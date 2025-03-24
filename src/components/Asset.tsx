@@ -1,6 +1,7 @@
 import { BiTransferAlt } from "react-icons/bi";
 
 import { SUPPORTED_NETWORKS } from "@/config";
+import { useWithdraw } from "@/hooks/useWithdraw";
 import { PortfolioItem } from "@/types/portfolio";
 
 function chainIdToChain(chainId: number): string {
@@ -17,6 +18,7 @@ export function Asset({
   portfolioItem: PortfolioItem;
   isCow: boolean;
 }) {
+  const { mutate: withdraw } = useWithdraw(portfolioItem);
   // Helper function to format amounts
   const formatAmount = (amount: string): string => {
     const numAmount = parseFloat(amount);
@@ -78,7 +80,7 @@ export function Asset({
           <button
             className="opacity-0 group-hover:opacity-100 ml-4 p-1.5 text-xs bg-light-blue-900 hover:bg-light-blue-900/80 rounded-md transition-all flex items-center gap-1"
             title="COW wallet action"
-            onClick={() => {}}
+            onClick={() => withdraw()}
           >
             <BiTransferAlt className="w-4 h-4" />
             Withdraw

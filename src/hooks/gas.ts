@@ -21,7 +21,7 @@ export const estimateUserOpGas = async (
       ],
     }),
   ]).catch((error) => {
-    console.error("Failed to estimate gas ==>", { ...error });
+    console.error("error", JSON.stringify(error, null, 2));
     throw error;
   });
 

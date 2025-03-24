@@ -1,5 +1,12 @@
 import { ENTRYPOINT_ADDRESS } from "@/config";
-import ethers, { type BigNumberish, type BytesLike } from "ethers";
+import { type BigNumberish, type BytesLike } from "ethers";
+import {
+  defaultAbiCoder,
+  hexConcat,
+  hexlify,
+  hexZeroPad,
+  keccak256,
+} from "ethers/lib/utils";
 import { type Address } from "viem";
 
 export interface UserOperationV0_7 {
@@ -26,40 +33,32 @@ export const getUserOpArray = (userOp: UserOperationV0_7) => {
     userOp.nonce, //nonce
     // initCode
     userOp?.factory
-      ? ethers.utils.keccak256(
-          ethers.utils.hexConcat([userOp?.factory, userOp?.factoryData])
-        )
-      : ethers.utils.keccak256("0x"),
-    ethers.utils.keccak256(userOp.callData), //calldata
-    ethers.utils.hexConcat([
+      ? keccak256(hexConcat([userOp?.factory, userOp?.factoryData]))
+      : keccak256("0x"),
+    keccak256(userOp.callData), //calldata
+    hexConcat([
       //accountGasLimits
-      ethers.utils.hexZeroPad(
-        ethers.utils.hexlify(userOp.verificationGasLimit, { hexPad: "left" }),
-        16
-      ),
-      ethers.utils.hexZeroPad(
-        ethers.utils.hexlify(userOp.callGasLimit, { hexPad: "left" }),
-        16
-      ),
+      hexZeroPad(hexlify(userOp.verificationGasLimit, { hexPad: "left" }), 16),
+      hexZeroPad(hexlify(userOp.callGasLimit, { hexPad: "left" }), 16),
     ]),
     userOp.preVerificationGas, // preVerificationGas
-    ethers.utils.hexConcat([
-      ethers.utils.hexZeroPad(userOp.maxPriorityFeePerGas, 16),
-      ethers.utils.hexZeroPad(userOp.maxFeePerGas, 16),
+    hexConcat([
+      hexZeroPad(userOp.maxPriorityFeePerGas, 16),
+      hexZeroPad(userOp.maxFeePerGas, 16),
     ]),
     // paymasterAndData
     userOp.paymaster
-      ? ethers.utils.keccak256(
-          ethers.utils.hexConcat([
+      ? keccak256(
+          hexConcat([
             userOp.paymaster,
-            ethers.utils.hexZeroPad(
-              ethers.utils.hexlify(userOp.paymasterVerificationGasLimit, {
+            hexZeroPad(
+              hexlify(userOp.paymasterVerificationGasLimit, {
                 hexPad: "left",
               }),
               16
             ),
-            ethers.utils.hexZeroPad(
-              ethers.utils.hexlify(userOp.paymasterPostOpGasLimit, {
+            hexZeroPad(
+              hexlify(userOp.paymasterPostOpGasLimit, {
                 hexPad: "left",
               }),
               16
@@ -67,12 +66,12 @@ export const getUserOpArray = (userOp: UserOperationV0_7) => {
             userOp.paymasterData,
           ])
         )
-      : ethers.utils.keccak256("0x"),
+      : keccak256("0x"),
   ];
 };
 
 export const getPackedData = (userOpData: BigNumberish[]) => {
-  const packedData = ethers.utils.defaultAbiCoder.encode(
+  const packedData = defaultAbiCoder.encode(
     [
       "address",
       "uint256",
@@ -97,12 +96,12 @@ export const getUserOpHash = (
 
   const packedData = getPackedData(userOpData);
 
-  const enc = ethers.utils.defaultAbiCoder.encode(
+  const enc = defaultAbiCoder.encode(
     ["bytes32", "address", "uint256"],
-    [ethers.utils.keccak256(packedData), ENTRYPOINT_ADDRESS, BigInt(chainId)]
+    [keccak256(packedData), ENTRYPOINT_ADDRESS, BigInt(chainId)]
   );
 
-  const userOpHash = ethers.utils.keccak256(enc);
+  const userOpHash = keccak256(enc);
 
   return userOpHash;
 };

@@ -8,8 +8,12 @@ export const config = getDefaultConfig({
   projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID ?? "",
   chains: [base, worldchain],
   transports: {
-    [base.id]: http(),
-    [worldchain.id]: http(),
+    [base.id]: http(
+      `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
+    ),
+    [worldchain.id]: http(
+      `https://worldchain-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
+    ),
   },
 });
 
