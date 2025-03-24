@@ -32,48 +32,55 @@ export function Asset({ portfolioItem }: { portfolioItem: PortfolioItem }) {
   const totalValue = price * uiAmount;
 
   return (
-    <div className="p-3 sm:p-4 hover:bg-black/50 transition-colors">
-      <div className="flex justify-between items-start mb-2">
-        <div className="flex items-center gap-3">
-          {portfolioItem.token.logoURI ? (
-            <img
-              src={portfolioItem.token.logoURI}
-              alt={portfolioItem.token.symbol}
-              className="w-12 h-12 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-500 dark:text-gray-400">?</span>
-            </div>
-          )}
-          <div>
-            <div>
-              <h3 className="font-bold flex items-center gap-2">
-                <div className="hover:text-blue-500 truncate max-w-[90px] sm:max-w-none cursor-pointer">
-                  {portfolioItem.token.name}
-                </div>
-                <img
-                  src={
-                    "https://dd.dexscreener.com/ds-data/chains/" +
-                    chainIdToChain(portfolioItem.token.chainId).toLowerCase() +
-                    ".png"
-                  }
-                  className="w-4 h-4"
-                  alt={chainIdToChain(portfolioItem.token.chainId)}
-                />
-              </h3>
-              <p className="text-sm text-gray-400">
-                {formatAmount(uiAmount.toString())} {portfolioItem.token.symbol}
-              </p>
-            </div>
+    <div className="px-4 py-3 hover:bg-black/50 transition-colors flex items-center border-b border-gray-800/50 last:border-b-0">
+      {/* Token Icon */}
+      <div className="w-8">
+        {portfolioItem.token.logoURI ? (
+          <img
+            src={portfolioItem.token.logoURI}
+            alt={portfolioItem.token.symbol}
+            className="w-8 h-8 rounded-full object-cover bg-white"
+          />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-500 dark:text-gray-400">?</span>
           </div>
-          <div className="text-right">
-            <div>
-              <p className="font-bold">${totalValue.toFixed(2)}</p>
-              <p className="text-sm text-gray-400">${price.toFixed(2)}</p>
-            </div>
-          </div>
+        )}
+      </div>
+
+      {/* Token Name & Chain */}
+      <div className="flex-1 ml-3">
+        <div className="flex items-center gap-2">
+          <span className="font-medium">{portfolioItem.token.name}</span>
+          <img
+            src={`https://dd.dexscreener.com/ds-data/chains/${chainIdToChain(
+              portfolioItem.token.chainId
+            ).toLowerCase()}.png`}
+            className="w-4 h-4"
+            alt={chainIdToChain(portfolioItem.token.chainId)}
+          />
         </div>
+        <div className="text-sm text-gray-400">
+          {portfolioItem.token.symbol}
+        </div>
+      </div>
+
+      {/* Token Amount */}
+      <div className="text-right mr-8 w-[150px]">
+        <div className="font-medium">{formatAmount(uiAmount.toString())}</div>
+        <div className="text-sm text-gray-400">
+          {portfolioItem.token.symbol}
+        </div>
+      </div>
+
+      {/* Token Price */}
+      <div className="text-right mr-8 w-[100px]">
+        <div className="font-medium">${price.toFixed(2)}</div>
+      </div>
+
+      {/* Token Value */}
+      <div className="text-right min-w-[100px]">
+        <div className="font-medium">${totalValue.toFixed(2)}</div>
       </div>
     </div>
   );
