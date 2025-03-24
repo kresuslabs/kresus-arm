@@ -7,7 +7,7 @@ import { usePortfolio } from "../hooks/usePortfolio";
 
 export function AssetsSection() {
   const { address } = useAccount();
-  const { contractWalletAddress } = useContractWallet(address as Address);
+  const { data: contractWalletAddress } = useContractWallet(address as Address);
   const { data: portfolio } = usePortfolio(contractWalletAddress ?? undefined);
 
   return (

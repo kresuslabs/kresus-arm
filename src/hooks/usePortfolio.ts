@@ -143,6 +143,7 @@ export async function getPortfolio(address: string): Promise<PortfolioItem[]> {
         }
 
         nonZeroBalances.forEach((token) => {
+          console.log("token", token);
           tokenBalancesMap.set(token.contractAddress, token.tokenBalance!);
         });
 

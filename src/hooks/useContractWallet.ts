@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { V06 } from "userop";
-import { type Address } from "viem";
+import { getAddress, type Address } from "viem";
 import { usePublicClient, useWalletClient } from "wagmi";
 
+import { ENTRYPOINT_ADDRESS, FACTORY_ADDRESS } from "@/config";
 import type {
   Account,
   Chain,
@@ -13,38 +14,32 @@ import type {
   WalletClient,
 } from "viem";
 
+async function getContractWalletAddress(
+  publicClient: PublicClient,
+  walletClient: WalletClient<Transport, Chain | undefined, Account>
+) {
+  const account = new V06.Account.Instance({
+    ...V06.Account.Common.SimpleAccount.base(publicClient, walletClient),
+    entryPointAddress: ENTRYPOINT_ADDRESS,
+    factoryAddress: FACTORY_ADDRESS,
+    salt: BigInt(getAddress(walletClient.account.address)),
+  });
+
+  return account.getSender();
+}
+
 export function useContractWallet(walletAddress: Address) {
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
-  const [contractAddress, setContractAddress] = useState<Address | null>(null);
 
-  useEffect(() => {
-    async function getWalletAddress() {
+  return useQuery({
+    queryKey: ["contractWallet", walletAddress],
+    queryFn: async () => {
       if (!publicClient || !walletClient) {
-        console.log("No public or wallet client");
-        return;
+        throw new Error("No public or wallet client");
       }
-
-      const account = new V06.Account.Instance({
-        ...V06.Account.Common.SimpleAccount.base(
-          publicClient as PublicClient,
-          walletClient as WalletClient<Transport, Chain | undefined, Account>
-        ),
-      });
-
-      console.log("account", account);
-
-      const senderAddress = await account.getSender();
-      console.log("senderAddress", senderAddress);
-      setContractAddress(senderAddress);
-    }
-
-    getWalletAddress();
-  }, [publicClient, walletAddress]);
-
-  return {
-    contractWalletAddress: contractAddress,
-    isLoading: !contractAddress,
-    error: !contractAddress ? new Error("Could not get wallet address") : null,
-  };
+      return getContractWalletAddress(publicClient, walletClient);
+    },
+    enabled: !!publicClient && !!walletClient,
+  });
 }

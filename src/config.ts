@@ -14,3 +14,4 @@ export const config = getDefaultConfig({
 
 // same for Worldchain and Base
 export const ENTRYPOINT_ADDRESS = "0x0000000071727De22E5E9d8BAf0edAc6f37da032";
+export const FACTORY_ADDRESS = "0xf5e92c74e20e03403f7f366e94eec7f62530d483";
