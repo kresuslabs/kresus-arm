@@ -11,3 +11,6 @@ export const config = getDefaultConfig({
     [worldchain.id]: http(),
   },
 });
+
+// same for Worldchain and Base
+export const ENTRYPOINT_ADDRESS = "0x0000000071727De22E5E9d8BAf0edAc6f37da032";
