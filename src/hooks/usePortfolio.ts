@@ -1,14 +1,8 @@
 import { alchemyClients } from "@/config";
 import { LifiToken, LifiTokenSchema } from "@/types/lifi";
+import { PortfolioItem } from "@/types/portfolio";
 import { useQuery } from "@tanstack/react-query";
 import { getAddress } from "viem";
-import { z } from "zod";
-
-const PortfolioItemSchema = z.object({
-  balance: z.string(),
-  token: LifiTokenSchema,
-});
-export type PortfolioItem = z.infer<typeof PortfolioItemSchema>;
 
 export async function getAnyToken(
   token: string,
