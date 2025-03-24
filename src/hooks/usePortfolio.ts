@@ -1,46 +1,13 @@
+import { alchemyClients } from "@/config";
+import { LifiToken, LifiTokenSchema } from "@/types/lifi";
 import { useQuery } from "@tanstack/react-query";
-import { Alchemy, Network } from "alchemy-sdk";
 import { getAddress } from "viem";
-import { base, worldchain } from "viem/chains";
 import { z } from "zod";
-
-const SUPPORTED_NETWORKS = [
-  { network: Network.BASE_MAINNET, chainId: base.id, chain: "base" },
-  {
-    network: Network.WORLDCHAIN_MAINNET,
-    chainId: worldchain.id,
-    chain: "worldchain",
-  },
-] as const;
-
-const alchemyClients = SUPPORTED_NETWORKS.map(
-  ({ network, chainId, chain }) => ({
-    client: new Alchemy({
-      apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
-      network,
-    }),
-    chainId,
-    chain,
-    network,
-  })
-);
-
-export const LifiTokenSchema = z.object({
-  address: z.string(),
-  name: z.string(),
-  symbol: z.string(),
-  decimals: z.number(),
-  logoURI: z.string().nullable().optional(),
-  chainId: z.number(),
-  priceUSD: z.string().nullable(),
-});
 
 const PortfolioItemSchema = z.object({
   balance: z.string(),
   token: LifiTokenSchema,
 });
-
-export type LifiToken = z.infer<typeof LifiTokenSchema>;
 export type PortfolioItem = z.infer<typeof PortfolioItemSchema>;
 
 export async function getAnyToken(
