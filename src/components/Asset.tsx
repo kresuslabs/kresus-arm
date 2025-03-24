@@ -1,3 +1,5 @@
+import { BiTransferAlt } from "react-icons/bi";
+
 import { SUPPORTED_NETWORKS } from "@/config";
 import { PortfolioItem } from "@/types/portfolio";
 
@@ -74,10 +76,12 @@ export function Asset({
         {/* Action Button */}
         {isCow && (
           <button
-            className="opacity-0 group-hover:opacity-100 ml-4 p-1.5 text-xs bg-gray-700 hover:bg-gray-600 rounded-md transition-all"
+            className="opacity-0 group-hover:opacity-100 ml-4 p-1.5 text-xs bg-light-blue-900 hover:bg-light-blue-900/80 rounded-md transition-all flex items-center gap-1"
             title="COW wallet action"
+            onClick={() => {}}
           >
-            Action
+            <BiTransferAlt className="w-4 h-4" />
+            Withdraw
           </button>
         )}
       </div>
