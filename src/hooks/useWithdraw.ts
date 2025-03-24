@@ -5,12 +5,10 @@ import { hexlify } from "ethers/lib/utils";
 import {
   encodeFunctionData,
   erc20Abi,
-  http,
   WalletClient,
   type Address,
   type PublicClient,
 } from "viem";
-import { createBundlerClient } from "viem/account-abstraction";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { estimateUserOpGas } from "./gas";
 import { getUserOpHash, UserOperationV0_7 } from "./op";
@@ -124,23 +122,16 @@ const withdraw = async (
 
   userOp.signature = signature;
 
+  console.log("signature", signature);
+
   const send = await publicClient.transport.request({
     method: "eth_sendUserOperation",
     params: [userOp, ENTRYPOINT_ADDRESS],
   });
 
-  const bundlerClient = createBundlerClient({
-    client: publicClient,
-    transport: http(
-      `https://${publicClient.chain.name}-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`
-    ),
-  });
+  console.log("send", send);
 
-  const receipt = await bundlerClient.waitForUserOperationReceipt({
-    hash: send as `0x${string}`,
-  });
-
-  return receipt;
+  return send as `0x${string}`;
 };
 
 async function signUserOpHashWithViem(
