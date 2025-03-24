@@ -69,7 +69,7 @@ export function AssetsSection() {
         <div>
           {portfolio?.map((item) => (
             <Asset
-              key={item.token.address}
+              key={item.token.address + item.token.chainId}
               portfolioItem={item}
               isCow={isCow}
             />

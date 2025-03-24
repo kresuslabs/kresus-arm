@@ -27,7 +27,7 @@ export function TransactionModal({
     const bundlerClient = createBundlerClient({
       client: publicClient,
       transport: http(
-        `https://${publicClient.chain.name}-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`
+        `https://${publicClient.chain.name}-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
       ),
     });
 
@@ -77,7 +77,7 @@ export function TransactionModal({
 
           {receipt && (
             <a
-              href={`https://blockscan.com/tx/${receipt.transactionHash}`}
+              href={`https://blockscan.com/tx/${receipt.userOpHash}`}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-4 text-light-blue-500 hover:underline"
