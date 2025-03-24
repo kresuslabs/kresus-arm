@@ -1,7 +1,8 @@
+import Header from "@/components/Header";
+import Providers from "@/components/Providers";
 import "@rainbow-me/rainbowkit/styles.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Providers from "./Providers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,9 +28,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <Header />
+          <main className="max-w-7xl mx-auto px-6">{children}</main>
+        </Providers>
       </body>
     </html>
   );
